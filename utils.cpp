@@ -2,6 +2,10 @@
 
 using namespace rb;
 
+glm::vec3 rb::reflect(glm::vec3 direction, glm::vec3 normal) {
+  return direction - 2 * glm::dot(direction, normal) * normal;
+}
+
 ray::ray(){};
 
 ray::ray(const glm::vec3 &a, const glm::vec3 &b) {

@@ -59,6 +59,16 @@ private:
   glm::vec3 albedo;
 };
 
+class metal : public material {
+public:
+  metal(glm::vec3 color);
+  virtual bool scatter(const rb::ray &input, const rb::hit_record &record,
+                       glm::vec3 &attenuation, rb::ray &output) const;
+
+private:
+  glm::vec3 albedo;
+};
+
 class world {
 public:
   world();

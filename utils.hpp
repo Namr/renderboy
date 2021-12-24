@@ -5,6 +5,8 @@
 
 namespace rb {
 
+glm::vec3 reflect(glm::vec3 direction, glm::vec3 normal);
+
 class ray {
 
 public:

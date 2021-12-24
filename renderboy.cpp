@@ -6,8 +6,8 @@
 #include "surfaces.hpp"
 #include "utils.hpp"
 
-const int IMAGE_WIDTH = 400;
-const int IMAGE_HEIGHT = 200;
+const int IMAGE_WIDTH = 200;
+const int IMAGE_HEIGHT = 50;
 const int SAMPLES = 100;
 
 int main(int argc, char const *argv[]) {
@@ -29,9 +29,11 @@ int main(int argc, char const *argv[]) {
     // create world and populate it with surfaces
     rb::world world;
     world.addSphere(glm::vec3(0, 0, -1), 0.5,
-                    new rb::diffuse(glm::vec3(1, 0, 0)));
+                    new rb::diffuse(glm::vec3(0.8, 0, 0)));
     world.addSphere(glm::vec3(0, -100.4, -1), 100,
-                    new rb::diffuse(glm::vec3(0, 0, 1)));
+                    new rb::diffuse(glm::vec3(0.0, 0.4, 0.0)));
+    world.addSphere(glm::vec3(1, 0, -1), 0.5,
+                    new rb::metal(glm::vec3(0.4, 0.4, 0.4)));
 
     // iterate over every pixel (x,y) on screen
     for (int y = IMAGE_HEIGHT - 1; y >= 0; y--) {
@@ -62,6 +64,10 @@ int main(int argc, char const *argv[]) {
         int b = int(255.99 * col.z);
         imageFile << r << " " << g << " " << b << std::endl;
       }
+      // print progress report
+      if (y % 5 == 0)
+        std::cout << (((float)IMAGE_HEIGHT - y) / IMAGE_HEIGHT) * 100 << "%"
+                  << std::endl;
     }
   }
 

@@ -48,6 +48,18 @@ bool diffuse::scatter(const rb::ray &input, const rb::hit_record &record,
   return true;
 }
 
+metal::metal(glm::vec3 color) : albedo(color) {}
+
+bool metal::scatter(const rb::ray &input, const rb::hit_record &record,
+                    glm::vec3 &attenuation, rb::ray &output) const {
+  glm::vec3 reflectedRay =
+      rb::reflect(glm::normalize(input.direction()), record.normal);
+
+  output = rb::ray(record.p, reflectedRay);
+  attenuation = albedo;
+  return glm::dot(output.direction(), record.normal) > 0;
+}
+
 world::world() : surfaceList() {}
 
 world::~world() {
