@@ -42,24 +42,74 @@ diffuse::diffuse(glm::vec3 color) : albedo(color) {}
 
 bool diffuse::scatter(const rb::ray &input, const rb::hit_record &record,
                       glm::vec3 &attenuation, rb::ray &output) const {
+
+  // diffuse materials will always reflect, but they absorb some amount of the
+  // hit ray (the albedo determines this)
   glm::vec3 target = record.p + record.normal + glm::ballRand(1.0f);
   output = rb::ray(record.p, target - record.p);
   attenuation = albedo;
   return true;
 }
 
-metal::metal(glm::vec3 color) : albedo(color) {}
+metal::metal(glm::vec3 color, float fuzz) : albedo(color) {
+  if (fuzz < 1) {
+    fuzziness = fuzz;
+  } else {
+    fuzz = 1;
+  }
+}
 
 bool metal::scatter(const rb::ray &input, const rb::hit_record &record,
                     glm::vec3 &attenuation, rb::ray &output) const {
   glm::vec3 reflectedRay =
       rb::reflect(glm::normalize(input.direction()), record.normal);
 
-  output = rb::ray(record.p, reflectedRay);
+  // fuzzy factor just adds some randomness to the reflected ray
+  output = rb::ray(record.p, reflectedRay + glm::ballRand(fuzziness));
   attenuation = albedo;
+
+  // only reflect when the reflection is not orthogonal to the surface normal
   return glm::dot(output.direction(), record.normal) > 0;
 }
 
+dielectric::dielectric(float reflectiveIndex) { ri = reflectiveIndex; }
+
+bool dielectric::scatter(const rb::ray &input, const rb::hit_record &record,
+                         glm::vec3 &attenuation, rb::ray &output) const {
+  // snells law implementation, with some reflection thrown in
+  glm::vec3 oNormal;
+  glm::vec3 reflected = reflect(input.direction(), record.normal);
+  float ni_over_nt;
+  attenuation = glm::vec3(1.0, 1.0, 1.0);
+  glm::vec3 refracted;
+  float reflectProbability;
+  float cosine;
+
+  if (glm::dot(input.direction(), record.normal) > 0) {
+    oNormal = -record.normal;
+    ni_over_nt = ri;
+    cosine = ri * glm::dot(input.direction(), record.normal) /
+             input.direction().length();
+  } else {
+    oNormal = record.normal;
+    ni_over_nt = 1.0f / ri;
+    cosine = -glm::dot(input.direction(), record.normal) /
+             input.direction().length();
+  }
+
+  if (rb::refract(input.direction(), oNormal, ni_over_nt, refracted)) {
+    reflectProbability = rb::shlick(cosine, ri);
+  } else {
+    reflectProbability = 1.0f;
+  }
+
+  if (drand48() < reflectProbability)
+    output = ray(record.p, reflected);
+  else
+    output = ray(record.p, refracted);
+
+  return true;
+}
 world::world() : surfaceList() {}
 
 world::~world() {
@@ -110,5 +160,5 @@ glm::vec3 world::colorRay(const rb::ray &r, int bounce) const {
 }
 
 void world::addSphere(glm::vec3 center, float radius, rb::material *mat) {
-  surfaceList.push_back(new sphere(center, radius, mat));
+  surfaceList.push_back(new rb::sphere(center, radius, mat));
 }

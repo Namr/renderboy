@@ -61,12 +61,23 @@ private:
 
 class metal : public material {
 public:
-  metal(glm::vec3 color);
+  metal(glm::vec3 color, float fuzz);
   virtual bool scatter(const rb::ray &input, const rb::hit_record &record,
                        glm::vec3 &attenuation, rb::ray &output) const;
 
 private:
   glm::vec3 albedo;
+  float fuzziness;
+};
+
+class dielectric : public material {
+public:
+  dielectric(float reflectiveIndex);
+  virtual bool scatter(const rb::ray &input, const rb::hit_record &record,
+                       glm::vec3 &attenuation, rb::ray &output) const;
+
+private:
+  float ri;
 };
 
 class world {

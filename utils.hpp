@@ -1,11 +1,16 @@
 #ifndef UTILSH
 #define UTILSH
 
+#include <cmath>
 #include <glm/glm.hpp>
 
 namespace rb {
 
+// vector math helpers
 glm::vec3 reflect(glm::vec3 direction, glm::vec3 normal);
+bool refract(const glm::vec3 &input, const glm::vec3 &normal, float niOverNt,
+             glm::vec3 &output);
+float shlick(float cosine, float ref_idx);
 
 class ray {
 

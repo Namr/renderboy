@@ -6,8 +6,8 @@
 #include "surfaces.hpp"
 #include "utils.hpp"
 
-const int IMAGE_WIDTH = 200;
-const int IMAGE_HEIGHT = 50;
+const int IMAGE_WIDTH = 1000;
+const int IMAGE_HEIGHT = 500;
 const int SAMPLES = 100;
 
 int main(int argc, char const *argv[]) {
@@ -20,20 +20,17 @@ int main(int argc, char const *argv[]) {
     imageFile << IMAGE_WIDTH << " " << IMAGE_HEIGHT << std::endl;
     imageFile << "255" << std::endl;
 
-    // setup camera variables
-    glm::vec3 cLowerLeft(-2.0, -1.0, -1.0); // lower left corner of the camera
-    glm::vec3 cHorizontal(4.0, 0.0, 0.0);   // horizontal size of the camera
-    glm::vec3 cVertical(0.0, 2.0, 0.0);     // vertical size of the camera
-    glm::vec3 origin(0.0, 0.0, 0.0);        // camera center
+    rb::camera camera;
 
     // create world and populate it with surfaces
     rb::world world;
-    world.addSphere(glm::vec3(0, 0, -1), 0.5,
-                    new rb::diffuse(glm::vec3(0.8, 0, 0)));
+    world.addSphere(glm::vec3(0, 0, -3), 0.5,
+                    new rb::diffuse(glm::vec3(1.0, 0, 0)));
     world.addSphere(glm::vec3(0, -100.4, -1), 100,
                     new rb::diffuse(glm::vec3(0.0, 0.4, 0.0)));
     world.addSphere(glm::vec3(1, 0, -1), 0.5,
-                    new rb::metal(glm::vec3(0.4, 0.4, 0.4)));
+                    new rb::metal(glm::vec3(0.4, 0.4, 0.4), 0.8f));
+    world.addSphere(glm::vec3(0, 0, -1), 0.3, new rb::dielectric(1.5));
 
     // iterate over every pixel (x,y) on screen
     for (int y = IMAGE_HEIGHT - 1; y >= 0; y--) {
@@ -49,8 +46,7 @@ int main(int argc, char const *argv[]) {
           float v = float(y + drand48()) / float(IMAGE_HEIGHT);
 
           // create a ray and find its color
-          rb::ray ray(origin, cLowerLeft + u * cHorizontal + v * cVertical);
-          col += world.colorRay(ray, 0);
+          col += world.colorRay(camera.getRay(u, v), 0);
         }
         col /= float(SAMPLES);
 
