@@ -28,7 +28,8 @@ private:
 
 class camera {
 public:
-  camera();
+  camera(glm::vec3 origin, glm::vec3 focusPoint, float verticalFOV,
+         float aspectRatio);
   ray getRay(float u, float v);
 
 private:

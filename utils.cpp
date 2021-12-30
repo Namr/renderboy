@@ -40,11 +40,20 @@ glm::vec3 ray::direction() const { return dir; }
 
 glm::vec3 ray::pointAtParameter(float t) const { return o + t * dir; }
 
-camera::camera() {
-  lowerLeftCorner = glm::vec3(-2.0f, -1.0f, -1.0f);
-  horizonal = glm::vec3(4.0f, 0.0f, 0.0f);
-  vertical = glm::vec3(0.0f, 2.0f, 0.0f);
-  origin = glm::vec3(0.0f, 0.0f, 0.0f);
+camera::camera(glm::vec3 origin, glm::vec3 focusPoint, float verticalFOV,
+               float aspectRatio) {
+  glm::vec3 up(0, 1, 0);
+  glm::vec3 w, u, v;
+  float theta = verticalFOV * M_PI / 180.0f; // convert to radians
+  float halfHeight = tan(theta / 2.0f);
+  float halfWidth = aspectRatio * halfHeight;
+  this->origin = origin;
+  w = glm::normalize(origin - focusPoint);
+  u = glm::normalize(glm::cross(up, w));
+  v = glm::cross(w, u);
+  lowerLeftCorner = origin - halfWidth * u - halfHeight * v - w;
+  horizonal = 2.0f * halfWidth * u;
+  vertical = 2.0f * halfHeight * v;
 }
 
 ray camera::getRay(float u, float v) {

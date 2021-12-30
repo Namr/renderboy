@@ -20,7 +20,8 @@ int main(int argc, char const *argv[]) {
     imageFile << IMAGE_WIDTH << " " << IMAGE_HEIGHT << std::endl;
     imageFile << "255" << std::endl;
 
-    rb::camera camera;
+    rb::camera camera(glm::vec3(0, 3, 0), glm::vec3(0, 0, -1), 90.0f,
+                      float(IMAGE_WIDTH / IMAGE_HEIGHT));
 
     // create world and populate it with surfaces
     rb::world world;
